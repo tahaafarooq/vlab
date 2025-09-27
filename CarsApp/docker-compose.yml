@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  exoticcars:
+    build: .
+    container_name: carsapp
+    ports:
+      - "8080:80"
+    volumes:
+      - ./uploads:/var/www/html/uploads
+      - ./data:/var/www/html/data
+      - ./init_db.php:/var/www/html/init_db.php
+    restart: unless-stopped

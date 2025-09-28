@@ -1,8 +1,45 @@
 <?php
+
 require_once 'db.php';
 $db = get_db();
 
 $id = isset($_GET['id']) ? $_GET['id'] : '';
+
+if (isset($_GET['img'])) {
+    $requested = $_GET['img'];
+
+    $filePath = __DIR__ . '/' . $requested;
+
+    if (file_exists($filePath) && is_file($filePath)) {
+        $finfoType = null;
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $finfoType = finfo_file($finfo, $filePath);
+            finfo_close($finfo);
+        } elseif (function_exists('mime_content_type')) {
+            $finfoType = mime_content_type($filePath);
+        }
+
+        if (!$finfoType) {
+            $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            $map = [
+                'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png', 'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                'txt' => 'text/plain', 'log' => 'text/plain',
+            ];
+            $finfoType = $map[$ext] ?? 'application/octet-stream';
+        }
+        header('Content-Type: ' . $finfoType);
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
+        exit;
+    } else {
+        http_response_code(404);
+        echo "<!doctype html><html><head><meta charset='utf-8'><title>File not found</title><script src='https://cdn.tailwindcss.com'></script></head><body class='bg-gray-50'><div class='mx-auto max-w-3xl p-8'><div class='bg-white p-6 rounded-2xl shadow'><h2 class='text-xl font-semibold'>File not found</h2><p class='mt-2 text-gray-500'>Requested file: <code>" . htmlspecialchars($requested) . "</code> does not exist.</p><p class='mt-4'><a href='index.php' class='text-sky-600'>Back to gallery</a></p></div></div></body></html>";
+        exit;
+    }
+}
 
 $query = "SELECT id, name, filename, uploader FROM cars WHERE id = $id LIMIT 1";
 $res = $db->query($query);
@@ -20,7 +57,7 @@ if (!$row) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Car #<?php echo htmlspecialchars($row['id']); ?> — Cars App</title>
+  <title>Car #<?php echo htmlspecialchars($row['id']); ?> — CarsApp</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .card-shadow { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
@@ -34,7 +71,7 @@ if (!$row) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div>
           <?php if (!empty($row['filename']) && file_exists(__DIR__ . '/uploads/' . $row['filename'])): ?>
-            <img src="uploads/<?php echo $row['filename']; ?>" class="w-full rounded-lg object-contain max-h-[60vh]" alt="car image" />
+            <img src="cars.php?img=uploads/<?php echo rawurlencode($row['filename']); ?>" class="w-full rounded-lg object-contain max-h-[60vh]" alt="car image" />
           <?php else: ?>
             <div class="h-64 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400">No image</div>
           <?php endif; ?>
@@ -64,11 +101,10 @@ if (!$row) {
 
           <div class="mt-6">
             <?php if (!empty($row['filename'])): ?>
-              <a href="uploads/<?php echo htmlspecialchars($row['filename']); ?>" class="inline-block px-4 py-2 rounded-lg border hover:bg-gray-100">Open file</a>
+              <a href="cars.php?img=uploads/<?php echo rawurlencode($row['filename']); ?>" class="inline-block px-4 py-2 rounded-lg border hover:bg-gray-100">Open Image</a>
             <?php endif; ?>
             <a href="index.php" class="ml-3 inline-block px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700">Back</a>
           </div>
-
         </div>
       </div>
     </div>

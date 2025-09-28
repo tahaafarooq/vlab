@@ -29,7 +29,7 @@ if (isset($_GET['img'])) {
                 'txt' => 'text/plain', 'log' => 'text/plain',
                 'php' => 'text/php',
             ];
-            $finfoType = $map[$ext] ?? 'application/octet-stream';
+            //$finfoType = $map[$ext] ?? 'application/octet-stream';
         }
         header('Content-Type: ' . $finfoType);
         header('Content-Length: ' . filesize($filePath));

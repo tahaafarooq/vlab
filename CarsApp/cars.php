@@ -66,7 +66,7 @@ if (isset($_GET['img'])) {
     }
 }
 
-$query = "SELECT id, name, filename, uploader FROM cars WHERE id = $id LIMIT 1";
+$query = "SELECT id, name, filename, uploader FROM cars WHERE id = '" . $id . "' LIMIT 1";
 $res = $db->query($query);
 $row = $res ? $res->fetchArray(SQLITE3_ASSOC) : false;
 

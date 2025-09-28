@@ -58,7 +58,7 @@ if (!$row) {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Car #<?php echo htmlspecialchars($row['id']); ?> — CarsApp</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="scripts/tailwind.js"></script>
   <style>
     .card-shadow { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
   </style>

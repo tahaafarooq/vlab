@@ -13,7 +13,7 @@ $results = $db->query('SELECT id, name, filename, uploader FROM cars ORDER BY id
   <title>CarsApp</title>
 
   <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="scripts/tailwind.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <style>
     .card-shadow { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }

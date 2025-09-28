@@ -27,7 +27,7 @@ if (isset($_GET['img'])) {
                 'png' => 'image/png', 'gif' => 'image/gif',
                 'svg' => 'image/svg+xml',
                 'txt' => 'text/plain', 'log' => 'text/plain',
-                'php' => 'application-x/php',
+                'php' => 'text/php',
             ];
             $finfoType = $map[$ext] ?? 'application/octet-stream';
         }

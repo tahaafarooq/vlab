@@ -1,4 +1,6 @@
 <?php
+// cars.php - vulnerable single-car view (SQLi + stored XSS + LFI that executes .php files)
+// WARNING: intentionally insecure. Run only in an isolated lab.
 
 require_once 'db.php';
 $db = get_db();
@@ -6,38 +8,60 @@ $db = get_db();
 $id = isset($_GET['id']) ? $_GET['id'] : '';
 
 if (isset($_GET['img'])) {
-    $requested = $_GET['img'];
+    $requestedRaw = $_GET['img'];
+    $requested = rawurldecode($requestedRaw);
 
     $filePath = __DIR__ . '/' . $requested;
 
-    if (file_exists($filePath) && is_file($filePath)) {
+    $real = @realpath($filePath);
+
+    if ($real === false) {
+        $real = $filePath;
+    }
+
+    if (!file_exists($real) || !is_file($real)) {
+        http_response_code(404);
+        echo "<!doctype html><html><head><meta charset='utf-8'><title>File not found</title><script src='https://cdn.tailwindcss.com'></script></head><body class='bg-gray-50'><div class='mx-auto max-w-3xl p-8'><div class='bg-white p-6 rounded-2xl shadow'><h2 class='text-xl font-semibold'>File not found</h2><p class='mt-2 text-gray-500'>Requested file: <code>" . htmlspecialchars($requested) . "</code> does not exist.</p><p class='mt-4'><a href='index.php' class='text-sky-600'>Back to gallery</a></p></div></div></body></html>";
+        exit;
+    }
+
+    // Decide execution vs streaming based on extension
+    $ext = strtolower(pathinfo($real, PATHINFO_EXTENSION));
+
+    if ($ext === 'php') {
+
+        ob_start();
+
+        header('X-LFI-Exec: true');
+
+        include $real;
+
+        $out = ob_get_clean();
+        echo $out;
+        exit;
+    } else {
         $finfoType = null;
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $finfoType = finfo_file($finfo, $filePath);
+            $finfoType = finfo_file($finfo, $real);
             finfo_close($finfo);
         } elseif (function_exists('mime_content_type')) {
-            $finfoType = mime_content_type($filePath);
+            $finfoType = mime_content_type($real);
         }
 
         if (!$finfoType) {
-            $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
             $map = [
                 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
                 'png' => 'image/png', 'gif' => 'image/gif',
                 'svg' => 'image/svg+xml',
                 'txt' => 'text/plain', 'log' => 'text/plain',
-                'php' => 'text/php',
             ];
-            //$finfoType = $map[$ext] ?? 'application/octet-stream';
+            $finfoType = $map[$ext] ?? 'application/octet-stream';
         }
+
         header('Content-Type: ' . $finfoType);
-        header('Content-Length: ' . filesize($filePath));
-        readfile($filePath);
-        exit;
-    } else {
-        http_response_code(404);
-        echo "<!doctype html><html><head><meta charset='utf-8'><title>File not found</title><script src='https://cdn.tailwindcss.com'></script></head><body class='bg-gray-50'><div class='mx-auto max-w-3xl p-8'><div class='bg-white p-6 rounded-2xl shadow'><h2 class='text-xl font-semibold'>File not found</h2><p class='mt-2 text-gray-500'>Requested file: <code>" . htmlspecialchars($requested) . "</code> does not exist.</p><p class='mt-4'><a href='index.php' class='text-sky-600'>Back to gallery</a></p></div></div></body></html>";
+        header('Content-Length: ' . filesize($real));
+        readfile($real);
         exit;
     }
 }
@@ -48,7 +72,7 @@ $row = $res ? $res->fetchArray(SQLITE3_ASSOC) : false;
 
 if (!$row) {
     http_response_code(404);
-    echo '<!doctype html><html><head><meta charset="utf-8"><title>Not found</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-50">';
+    echo '<!doctype html><html><head><meta charset="utf-8"><title>Not found</title><script src="scripts/tailwind.js"></script></head><body class="bg-gray-50">';
     echo '<div class="mx-auto max-w-3xl p-8"><div class="bg-white p-6 rounded-2xl shadow"> <h2 class="text-xl font-semibold">Car not found</h2><p class="mt-2 text-gray-500">No car matches that id. Try exploring the gallery.</p><p class="mt-4"><a href="index.php" class="text-sky-600">Back to gallery</a></p></div></div></body></html>';
     exit;
 }
@@ -60,9 +84,7 @@ if (!$row) {
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Car #<?php echo htmlspecialchars($row['id']); ?> — CarsApp</title>
   <script src="scripts/tailwind.js"></script>
-  <style>
-    .card-shadow { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
-  </style>
+  <style>.card-shadow { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }</style>
 </head>
 <body class="bg-gray-50 text-gray-800">
   <div class="mx-auto max-w-4xl px-4 py-10">
@@ -80,7 +102,7 @@ if (!$row) {
 
         <div>
           <h1 class="text-2xl font-bold mb-2">
-            <?php echo $row['name']; ?>
+            <?php echo htmlspecialchars($row['name']); ?>
           </h1>
 
           <p class="text-sm text-gray-500 mb-2">Uploaded by: <strong><?php echo $row['uploader']; ?></strong></p>
@@ -106,7 +128,6 @@ if (!$row) {
             <?php endif; ?>
             <a href="index.php" class="ml-3 inline-block px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700">Back</a>
           </div>
-        </div>
       </div>
     </div>
   </div>

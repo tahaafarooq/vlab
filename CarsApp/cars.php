@@ -1,6 +1,4 @@
 <?php
-// cars.php - vulnerable single-car view (SQLi + stored XSS + LFI that executes .php files)
-// WARNING: intentionally insecure. Run only in an isolated lab.
 
 require_once 'db.php';
 $db = get_db();

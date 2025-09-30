@@ -19,7 +19,7 @@ if (isset($_GET['img'])) {
 
     if (!file_exists($real) || !is_file($real)) {
         http_response_code(404);
-        echo "<!doctype html><html><head><meta charset='utf-8'><title>File not found</title><script src='https://cdn.tailwindcss.com'></script></head><body class='bg-gray-50'><div class='mx-auto max-w-3xl p-8'><div class='bg-white p-6 rounded-2xl shadow'><h2 class='text-xl font-semibold'>File not found</h2><p class='mt-2 text-gray-500'>Requested file: <code>" . htmlspecialchars($requested) . "</code> does not exist.</p><p class='mt-4'><a href='index.php' class='text-sky-600'>Back to gallery</a></p></div></div></body></html>";
+        echo "<!doctype html><html><head><meta charset='utf-8'><title>File not found</title><script src='scripts/tailwind.js'></script></head><body class='bg-gray-50'><div class='mx-auto max-w-3xl p-8'><div class='bg-white p-6 rounded-2xl shadow'><h2 class='text-xl font-semibold'>File not found</h2><p class='mt-2 text-gray-500'>Requested file: <code>" . htmlspecialchars($requested) . "</code> does not exist.</p><p class='mt-4'><a href='index.php' class='text-sky-600'>Back to gallery</a></p></div></div></body></html>";
         exit;
     }
 

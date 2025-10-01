@@ -99,7 +99,7 @@ $results = $db->query('SELECT id, name, filename, uploader FROM cars ORDER BY id
                   <!--Patching XSS vuln-->
                   <p class="text-xs text-gray-400 mt-1">ID: <?php echo $row['id']; ?> · <?php echo htmlspecialchars($row['filename']); ?></p>
                   <!--Patching XSS vuln-->
-                  <p class="text-sm text-gray-500 mt-2">Uploaded by: <span class="font-medium"><?php echo htmlspecialchars(['uploader'], ENT_QUOTES, 'UTF-8'); ?></span></p>
+                  <p class="text-sm text-gray-500 mt-2">Uploaded by: <span class="font-medium"><?php echo htmlspecialchars($row['uploader'], ENT_QUOTES, 'UTF-8'); ?></span></p>
 
                   <div class="mt-3 flex items-center gap-2">
                     <a href="cars.php?id=<?php echo $row['id']; ?>" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm">View</a>

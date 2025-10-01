@@ -10,7 +10,7 @@ $name = isset($_POST['name']) ? $_POST['name'] : '';
 $uploader = isset($_POST['uploader']) ? $_POST['uploader'] : '';
 //PATCHING FILE UPLOAD BY SETTING UPLOAD FOLDER TO /tmp/ (TEMPORARY)
 //$uploadDir = __DIR__ . '/uploads/';
-$uploadDir = '/tmp/'
+$uploadDir = '/tmp/';
 
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir, 0777, true);

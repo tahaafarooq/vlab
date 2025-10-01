@@ -94,10 +94,10 @@ $results = $db->query('SELECT id, name, filename, uploader FROM cars ORDER BY id
                 <div class="p-4">
                   <h3 class="text-lg font-semibold leading-snug">
                     <!--Patching XSS vuln-->
-                    <?php echo htmlspecialchars(['name'], ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8'); ?>
                   </h3>
                   <!--Patching XSS vuln-->
-                  <p class="text-xs text-gray-400 mt-1">ID: <?php echo $row['id']; ?> ?></p>
+                  <p class="text-xs text-gray-400 mt-1">ID: <?php echo $row['id']; ?> · <?php echo htmlspecialchars($row['filename']); ?></p>
                   <!--Patching XSS vuln-->
                   <p class="text-sm text-gray-500 mt-2">Uploaded by: <span class="font-medium"><?php echo htmlspecialchars(['uploader'], ENT_QUOTES, 'UTF-8'); ?></span></p>
 

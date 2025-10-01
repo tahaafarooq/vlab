@@ -12,3 +12,6 @@ It'll prompt for password to install necessary packages as sudo and after that i
 
 To stop the PHP server, press `Ctrl+C` in the terminal running the script
 
+
+## Patching the Vulns
+Copy the files from `patches/` and replace them at the working directory `CarsApp`
